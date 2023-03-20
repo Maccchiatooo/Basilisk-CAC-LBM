@@ -1,7 +1,7 @@
 #define cs2 1./3.
 #define cs 1./sqrt(3.)
 #define q 9
-#define D_delta 4
+#define D_delta 8
 
 
 double sigma=0.0001;
@@ -9,7 +9,7 @@ double sigma=0.0001;
 
 double t_1=0.1;
 double t_2=0.1;
-double t_phi=1;
+double t_phi=0.5;
 
 scalar rho[];
 scalar phi[];

@@ -6,8 +6,9 @@ double rho_2=1;
 
 event init(t=0){
     foreach(){
-        double dist =sq(x-0.5*L0)+sq(y-0.5*L0)-sq(0.25*L0);
-        phi[]=0.5-0.5*tanh(2.0*dist/D_delta);
+
+        double dist =sqrt(sq(x-0.5*L0)+sq(y-0.5*L0))-sqrt(sq(0.15*L0));
+        phi[]=0.5-0.5*tanh(2.0*dist/(D_delta));
         rho[]=rho_1*phi[]+rho_2*(1.0-phi[]);
         t_p[]=t_1*phi[]+t_2*(1.0-phi[]);
         nu[]=t_p[]*cs2;
@@ -20,8 +21,8 @@ event init(t=0){
     }
     foreach(){
 
-        d_phi.x[]=iso_x(point,phi,Delta);
-        d_phi.y[]=iso_y(point,phi,Delta);
+        d_phi.x[]=iso_x(point,phi);
+        d_phi.y[]=iso_y(point,phi);
     }
     foreach(){
         double sqd=sqrt(sq(d_phi.x[])+sq(d_phi.y[]))+1e-15;
@@ -29,7 +30,7 @@ event init(t=0){
         div_phi_y[]=d_phi.y[]/sqd;
     }
     foreach(){
-        div_phi[]=iso_x(point,div_phi_x,Delta)+iso_y(point,div_phi_y,Delta);
+        div_phi[]=iso_x(point,div_phi_x)+iso_y(point,div_phi_y);
     }
 
     foreach(){
@@ -68,20 +69,20 @@ event collision_f(i++){
         double fors_sx=-3.0/2.0*sigma*D_delta*div_phi[]*sqd*d_phi.x[];
         double fors_sy=-3.0/2.0*sigma*D_delta*div_phi[]*sqd*d_phi.y[];
 
-        double fors_px=-iso_x(point,p,Delta);
-        double fors_py=-iso_y(point,p,Delta);
+        double fors_px=-iso_x(point,p);
+        double fors_py=-iso_y(point,p);
 
-        double fors_ppx=iso_x(point,pp,Delta);
-        double fors_ppy=iso_y(point,pp,Delta);
+        double fors_ppx=iso_x(point,pp);
+        double fors_ppy=iso_y(point,pp);
 
-        double fors_visx=nu[]*(2.0*iso_x(point,u.x,Delta)*iso_x(point,rho,Delta)+
-                                  (iso_y(point,u.x,Delta)+iso_x(point,u.y,Delta))*iso_y(point,rho,Delta));
+        double fors_visx=nu[]*(2.0*iso_x(point,u.x)*iso_x(point,rho)+
+                                  (iso_y(point,u.x)+iso_x(point,u.y))*iso_y(point,rho));
 
-        double fors_visy=nu[]*(2.0*iso_y(point,u.y,Delta)*iso_y(point,rho,Delta)
-                                 +(iso_y(point,u.x,Delta)+iso_x(point,u.y,Delta))*iso_x(point,rho,Delta));
+        double fors_visy=nu[]*(2.0*iso_y(point,u.y)*iso_y(point,rho)
+                                 +(iso_y(point,u.x)+iso_x(point,u.y))*iso_x(point,rho));
 
 
-        
+
         int ii=0;
 
         for(scalar f_temp in f){
@@ -93,7 +94,7 @@ event collision_f(i++){
                         (e[ii].y-u.y[])*gamma/rho[]*(fors_py+fors_visy+fors_sy)+
                         (e[ii].x-u.x[])*wt[ii]*fors_ppx+
                         (e[ii].y-u.y[])*wt[ii]*fors_ppy;
-
+        
             double feq=gamma*pp[]+(gamma-wt[ii])*cs2-0.5*fors;
             f_temp[]-=(f_temp[]-feq)/(t_p[]+0.5)+fors;
             ii++;
@@ -127,9 +128,9 @@ event collision_g(i++){
     }
 }
 
-// // event boundary(i++){
+// // // event boundary(i++){
 
-// // }
+// // // }
 scalar f_new[];
 event streaming_f(i++){
     if(i>0){
@@ -195,8 +196,8 @@ event update(i++){
 
     foreach(){
 
-        d_phi.x[]=iso_x(point,phi,Delta);
-        d_phi.y[]=iso_y(point,phi,Delta);
+        d_phi.x[]=iso_x(point,phi);
+        d_phi.y[]=iso_y(point,phi);
     }
     foreach(){
         double sqd=sqrt(sq(d_phi.x[])+sq(d_phi.y[]))+1e-15;
@@ -205,7 +206,7 @@ event update(i++){
 
     }
     foreach(){
-        div_phi[]=iso_x(point,div_phi_x,Delta)+iso_y(point,div_phi_y,Delta);
+        div_phi[]=iso_x(point,div_phi_x)+iso_y(point,div_phi_y);
     }
 
     foreach(){
@@ -215,7 +216,7 @@ event update(i++){
         
         
 
-        pp[]-=u.x[]*iso_x(point,pp,Delta)/2.0-u.y[]*iso_y(point,pp,Delta)/2.0;    
+        pp[]-=u.x[]*iso_x(point,pp)/2.0-u.y[]*iso_y(point,pp)/2.0;    
         
         p[]=pp[]*rho[];
     }
@@ -239,17 +240,17 @@ event update(i++){
         double fors_sx=-3.0/2.0*sigma*D_delta*div_phi[]*sqd*d_phi.x[];
         double fors_sy=-3.0/2.0*sigma*D_delta*div_phi[]*sqd*d_phi.y[];
 
-        double fors_px=-iso_x(point,p,Delta);
-        double fors_py=-iso_y(point,p,Delta);
+        double fors_px=-iso_x(point,p);
+        double fors_py=-iso_y(point,p);
 
-        double fors_ppx=iso_x(point,pp,Delta)*rho[];
-        double fors_ppy=iso_y(point,pp,Delta)*rho[];
+        double fors_ppx=iso_x(point,pp)*rho[];
+        double fors_ppy=iso_y(point,pp)*rho[];
 
-        double fors_visx=nu[]*(2.0*iso_x(point,u.x,Delta)*iso_x(point,rho,Delta)+
-                                  (iso_y(point,u.x,Delta)+iso_x(point,u.y,Delta))*iso_y(point,rho,Delta));
+        double fors_visx=nu[]*(2.0*iso_x(point,u.x)*iso_x(point,rho)+
+                                  (iso_y(point,u.x)+iso_x(point,u.y))*iso_y(point,rho));
 
-        double fors_visy=nu[]*(2.0*iso_y(point,u.y,Delta)*iso_y(point,rho,Delta)
-                                 +(iso_y(point,u.x,Delta)+iso_x(point,u.y,Delta))*iso_x(point,rho,Delta));
+        double fors_visy=nu[]*(2.0*iso_y(point,u.y)*iso_y(point,rho)
+                                 +(iso_y(point,u.x)+iso_x(point,u.y))*iso_x(point,rho));
 
 
         u.x[]+=(fors_px+fors_ppx+fors_visx+fors_sx)/2.0/rho[];

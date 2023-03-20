@@ -1,4 +1,4 @@
-#include "grid/multigrid.h"
+//#include "grid/multigrid.h"
 #include "view.h"
 #include "utils.h"
 #include "vtk.h"
@@ -6,12 +6,12 @@
 #include "macro.h"
 #include "lbm.h"
 
-#define lmax ((int)log2(L0))
-
+#define lmin (6)
+#define lmax (8)
 int main(){
 
-    L0=128;
-    init_grid(1<<7);
+    L0=pow(2,lmax);
+    init_grid(1<<lmin);
 
     run();
 
@@ -24,4 +24,12 @@ int main(){
     dump(ti);
  }
 
-event end (i = 100000){}
+event adapt(i++)
+{
+    scalar cri[];
+    foreach(){
+        cri[]=sqrt(sq(d_phi.x[])+sq(d_phi.y[]));
+    }
+    adapt_wavelet({cri}, (double[]){1.e-6}, maxlevel = (lmax), minlevel = (lmin));
+}
+event end (i = 10000){}

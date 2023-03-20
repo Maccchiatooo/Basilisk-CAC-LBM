@@ -1,9 +1,9 @@
-inline double iso_x(Point point, scalar phi,int del){
-    return(((phi[1,0]-phi[-1,0])/3.0+(phi[1,1]-phi[-1,-1])/12.0+(phi[1,-1]-phi[-1,1])/12.0));
+inline double iso_x(Point point, scalar phi){
+    return((((phi[1,0]-phi[-1,0])/3.0+(phi[1,1]-phi[-1,-1])/12.0+(phi[1,-1]-phi[-1,1])/12.0))/Delta);
 
 } 
-inline double iso_y(Point point, scalar phi,int del){
-    return(((phi[0,1]-phi[0,-1])/3.0+(phi[1,1]-phi[-1,-1])/12.0+(phi[-1,1]-phi[1,-1])/12.0));
+inline double iso_y(Point point, scalar phi){
+    return((((phi[0,1]-phi[0,-1])/3.0+(phi[1,1]-phi[-1,-1])/12.0+(phi[-1,1]-phi[1,-1])/12.0))/Delta);
 
 } 
 
